@@ -5,28 +5,29 @@
     bcyang's explorer
 """
 
+import os
 import sys
-from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QFrame
-from bxplorer import *
+import json
+from PyQt5.QtWidgets import QApplication
+from bxplorer_ui import Bxplorer
+from bxplorer_data import BxplorerData
 
-class Bxplorer(QMainWindow, Ui_MainWindow):
-    def __init__(self, parent=None):
-        super(Bxplorer, self).__init__(parent)
-        self.setupUi(self)
 
-    def show_ui(self, y=50):
-        self.pu = QPushButton(self)
-        self.pu.setText('sdf')
-        self.pu.setGeometry(50, y, 100, 50)
-    
-    def keyPressEvent(self, QKeyEvent):
-        self.show_ui(70)
-        self.pu.setVisible(True)
-        print('sdf')
+def bxplorer_data():
+    if len(sys.argv) == 1:
+        data = {'roots': ''}
+
+
 
 if __name__ == '__main__':
+
+    # bxplorer_data = BxplorerData('.\\Bxplorer.data')
+    # data = {'a': 'b'}
+    # bxplorer_data.write(data)
+
+    # root = sys.argv[0]
+    # root = os.getcwd()
     app = QApplication(sys.argv)
-    bxplorer = Bxplorer()
+    bxplorer = Bxplorer() if len(sys.argv) == 1 else Bxplorer(sys.argv[1])
     bxplorer.show()
     sys.exit(app.exec_())
-    print('# bxplorer #')
