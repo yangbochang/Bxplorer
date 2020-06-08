@@ -11,17 +11,27 @@ from bxplorer_data import BxplorerData
 
 class Bxplorer(QMainWindow, Ui_MainWindow):
     def __init__(self, parent=None, data_path=None):
-        super(Bxplorer, self).__init__(parent, data_path)
-        self.setupUi(self)
+        super(Bxplorer, self).__init__(parent)
 
+        # 获取数据
+        self.bxplorer_data = BxplorerData(data_path)
+
+        self.setupUi(self)
         # 设置标题
         self.setWindowTitle('Bxplorer')
+        self.update_tableView()
 
+        
+    
+    def update_tableView(self):
+        data = BxplorerData(self.data_path).read()
+        row_max = len(data['ROOTS'])
         # 设置 tableView
-        self.model = QStandardItemModel(4, 2)
+        self.model = QStandardItemModel(row_max, 2)
         self.model.setHorizontalHeaderLabels(['文件夹路径', '操作'])
 
         self.tableView.setModel(self.model)
         self.tableView.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self.tableView.horizontalHeader().setSectionResizeMode(1, QHeaderView.Interactive)
         self.tableView.setColumnWidth(1, 100)
+
