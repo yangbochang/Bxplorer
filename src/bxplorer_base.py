@@ -45,6 +45,7 @@ class Ui_MainWindow(object):
         self.label_root.setObjectName("label_root")
         self.gridLayout.addWidget(self.label_root, 4, 0, 1, 1)
         self.tableView_root = QtWidgets.QTableView(self.centralwidget)
+        self.tableView_root.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
         self.tableView_root.setObjectName("tableView_root")
         self.gridLayout.addWidget(self.tableView_root, 5, 0, 1, 1)
         self.pushButton = QtWidgets.QPushButton(self.centralwidget)
