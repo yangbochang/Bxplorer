@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1024</width>
+    <width>1020</width>
     <height>633</height>
    </rect>
   </property>
@@ -22,57 +22,123 @@
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout">
     <item row="0" column="0">
-     <widget class="QLabel" name="label_file">
-      <property name="text">
-       <string>文件</string>
-      </property>
-     </widget>
-    </item>
-    <item row="1" column="0">
-     <widget class="QTableView" name="tableView_file"/>
-    </item>
-    <item row="2" column="0">
-     <widget class="QTableView" name="tableView_filter"/>
-    </item>
-    <item row="3" column="0">
-     <widget class="Line" name="line">
+     <widget class="QSplitter" name="splitter_1">
       <property name="orientation">
-       <enum>Qt::Horizontal</enum>
+       <enum>Qt::Vertical</enum>
       </property>
-     </widget>
-    </item>
-    <item row="4" column="0">
-     <widget class="QLabel" name="label_root">
-      <property name="font">
-       <font>
-        <family>微软雅黑</family>
-        <pointsize>11</pointsize>
-       </font>
-      </property>
-      <property name="text">
-       <string>文件夹</string>
-      </property>
-     </widget>
-    </item>
-    <item row="5" column="0">
-     <widget class="QTableView" name="tableView_root">
-      <property name="editTriggers">
-       <set>QAbstractItemView::NoEditTriggers</set>
-      </property>
-     </widget>
-    </item>
-    <item row="6" column="0">
-     <widget class="QPushButton" name="pushButton">
-      <property name="text">
-       <string>Open</string>
-      </property>
-     </widget>
-    </item>
-    <item row="7" column="0">
-     <widget class="QTableView" name="tableView_suffix">
-      <property name="showGrid">
-       <bool>false</bool>
-      </property>
+      <widget class="QSplitter" name="splitter_2">
+       <property name="orientation">
+        <enum>Qt::Vertical</enum>
+       </property>
+       <widget class="QTableWidget" name="tw_file"/>
+       <widget class="QSplitter" name="splitter_3">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <widget class="QSplitter" name="splitter_4">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <widget class="QPushButton" name="pb_filter_all">
+          <property name="maximumSize">
+           <size>
+            <width>50</width>
+            <height>40</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>全选</string>
+          </property>
+         </widget>
+         <widget class="QPushButton" name="pb_filter_none">
+          <property name="maximumSize">
+           <size>
+            <width>50</width>
+            <height>40</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>清空</string>
+          </property>
+         </widget>
+        </widget>
+        <widget class="QTableWidget" name="tw_filter"/>
+       </widget>
+      </widget>
+      <widget class="Line" name="line">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+      </widget>
+      <widget class="QSplitter" name="splitter_5">
+       <property name="orientation">
+        <enum>Qt::Vertical</enum>
+       </property>
+       <widget class="QSplitter" name="splitter_6">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <widget class="QTableWidget" name="tw_root">
+         <property name="maximumSize">
+          <size>
+           <width>16777215</width>
+           <height>120</height>
+          </size>
+         </property>
+        </widget>
+        <widget class="QPushButton" name="pb_open">
+         <property name="maximumSize">
+          <size>
+           <width>100</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>打开</string>
+         </property>
+        </widget>
+       </widget>
+       <widget class="QSplitter" name="splitter_7">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <widget class="QSplitter" name="splitter_8">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <widget class="QPushButton" name="pb_suffix_all">
+          <property name="maximumSize">
+           <size>
+            <width>50</width>
+            <height>30</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>全选</string>
+          </property>
+         </widget>
+         <widget class="QPushButton" name="pb_suffix_none">
+          <property name="maximumSize">
+           <size>
+            <width>50</width>
+            <height>30</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>清空</string>
+          </property>
+         </widget>
+        </widget>
+        <widget class="QTableWidget" name="tw_suffix">
+         <property name="maximumSize">
+          <size>
+           <width>16777215</width>
+           <height>60</height>
+          </size>
+         </property>
+        </widget>
+       </widget>
+      </widget>
      </widget>
     </item>
    </layout>
@@ -80,10 +146,15 @@
   <widget class="QStatusBar" name="statusbar"/>
  </widget>
  <tabstops>
-  <tabstop>tableView_file</tabstop>
-  <tabstop>tableView_filter</tabstop>
-  <tabstop>pushButton</tabstop>
-  <tabstop>tableView_suffix</tabstop>
+  <tabstop>tw_file</tabstop>
+  <tabstop>pb_filter_all</tabstop>
+  <tabstop>pb_filter_none</tabstop>
+  <tabstop>tw_filter</tabstop>
+  <tabstop>tw_root</tabstop>
+  <tabstop>pb_open</tabstop>
+  <tabstop>pb_suffix_all</tabstop>
+  <tabstop>pb_suffix_none</tabstop>
+  <tabstop>tw_suffix</tabstop>
  </tabstops>
  <resources/>
  <connections/>
