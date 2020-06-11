@@ -7,30 +7,27 @@
 import os 
 import json
 
+INIT_FILE_DATA = {'File': [], 'Root': []}
+
 class BxplorerData():
     ''' Bxplorer的数据操作 '''
 
     def __init__(self, file_path):
 
-        # 初始化
-        self.file_path = file_path              # 数据文件路径（包含文件名）
+        self.init_file_data = INIT_FILE_DATA
         self.file_name = 'BXPLORER.DATA'        # 默认数据文件名
-        # 默认初始数据文件内容
-        self.init_file_data = {'ROOT': []}
+        self.file_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), self.file_name) \
+            if file_path is None else file_path
 
-        # 如果指定file_path，则默认在当前文件夹下
-        if self.file_path is None:
-            self.file_path = \
-                os.path.join(os.path.dirname(os.path.realpath(__file__)), self.file_name)
-
-        # 使用json解析数据
         if os.path.isfile(self.file_path):
+            # json校验
             try:
                 read_file = open(self.file_path, 'r', encoding='utf-8').read()
-                json.loads(read_file)
-                self.file_data = self.read()
-                self.file_data['ROOT']
-            except (ValueError, TypeError):
+                file_data = json.loads(read_file)
+            except (ValueError, TypeError, KeyError):
+                self.backup_and_new()
+            # 判断字典里是否有File和Root
+            if 'File' not in file_data or 'Root' not in file_data:
                 self.backup_and_new()
         else:
             self.new()
@@ -61,6 +58,5 @@ class BxplorerData():
         ''' 写数据 '''
 
         open_file = open(self.file_path, 'w', encoding='utf-8')
-        open_file.write(json.dumps(data))
+        open_file.write(json.dumps(data, indent=2, sort_keys=True, ensure_ascii=False))
         open_file.close()
-

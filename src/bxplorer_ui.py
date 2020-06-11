@@ -6,35 +6,13 @@
 
 import os
 
-from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QMainWindow, QHeaderView, QFileDialog, QItemDelegate, QPushButton, QHBoxLayout, QWidget
+#from PyQt5.QtCore import Qt
+#from PyQt5.QtWidgets import QMainWindow, QHeaderView, QFileDialog, QItemDelegate, QPushButton, QHBoxLayout, QWidget
+from PyQt5.QtWidgets import *
 from PyQt5.QtGui import QStandardItemModel, QStandardItem
 from bxplorer_base import Ui_MainWindow
 from bxplorer_data import BxplorerData
 
-# class MyButtonDelegate(QItemDelegate):
-#     def __init__(self, parent=None):
-#         super().__init__()
-    
-#     def button_delete(self, deleter, option, index):
-#         if not self.parent().indexWidget(index):
-#             button_delete = QPushButton(
-#                 self.tr('DELETE'),
-#                 self.parent(),
-#                 clicked=self.parent().cellButtonClicked
-#             )
-#             button_delete.index = [index.row(), index.column()]
-
-#             h_box_layout = QHBoxLayout()
-#             h_box_layout.addWidget(button_delete)
-#             h_box_layout.setContentsMargins(0, 0, 0, 0)
-#             h_box_layout.setAlignment(Qt.AlignCenter)
-#             widget = QWidget()
-#             widget.setLayout(h_box_layout)
-#             self.parent().setIndexWidget(
-#                 index,
-#                 widget
-#             )
 
 class Bxplorer(QMainWindow, Ui_MainWindow):
     ''' 重构 bxplorer_base '''
@@ -42,49 +20,46 @@ class Bxplorer(QMainWindow, Ui_MainWindow):
     def __init__(self, data_path=None):
         super().__init__()
 
-        # 获取数据
-        self.data_path = data_path
-        self.bxplorer_data = BxplorerData(self.data_path)
-
         # 初始化界面
         self.setupUi(self)
         self.setWindowTitle('Bxplorer')
-        self.update_tableView()
+        # 初始化数据
+        self.bxplorer_data = BxplorerData(data_path)
 
-        self.pushButton.clicked.connect(self.new_root)
+        # 设置按钮响应
+        self.pb_open.clicked.connect(self.new_root)
 
-    def update_tableView(self):
-        ''' 设置tableView '''
+        # 设置tableWidget的显示内容
+        self.update_tw_root()
 
-        bxplorer_data = BxplorerData(self.data_path)
-        data = bxplorer_data.read()
-        try:
-            row_max = len(data['ROOT'])
-        except ValueError:
-            print('ok')
-        # 设置 tableView
-        self.model = QStandardItemModel(row_max, 2)
-        self.model.setHorizontalHeaderLabels(['文件夹路径', '操作'])
+    def update_tw_root(self):
+        ''' 设置tw_root '''
 
-        for row in range(row_max):
-            item = QStandardItem(str(data['ROOT'][row]))
-            self.model.setItem(row, 0, item)
-            self.model.setCellWidget(row, 1, self.delete_button(str(row)))
+        # 设置 tableWidget 格式
+        self.tw_root.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        self.tw_root.horizontalHeader().setSectionResizeMode(1, QHeaderView.Interactive)
+        self.tw_root.setColumnWidth(1, 100)
 
-        self.tableView_root.setModel(self.model)
-        self.tableView_root.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
-        self.tableView_root.horizontalHeader().setSectionResizeMode(1, QHeaderView.Interactive)
-        self.tableView_root.setColumnWidth(1, 100)
+        # 设置 tableWidget 内容
+        data = self.bxplorer_data.read()
+        row_count = len(data['Root'])
+        self.tw_root.setRowCount(row_count)
+        for row in range(row_count):
+            self.tw_root.setItem(row, 0, QTableWidgetItem(str(data['Root'][row])))
 
-        #self.tableView_root.setItemDelegateForColumn(1, MyButtonDelegate(self))
 
     def new_root(self):
         ''' 新增root '''
+
+        data = self.bxplorer_data.read()
         root = QFileDialog.getExistingDirectory(self, '选择文件夹', os.getcwd())
-        if root not in self.bxplorer_data.file_data['ROOT']:
-            self.bxplorer_data.file_data['ROOT'].append(root)
-        self.bxplorer_data.write(self.bxplorer_data.file_data)
-        self.update_tableView()
+        if root not in data['Root']:
+            data['Root'].append(root)
+            data['Root'].sort()
+
+        # 更新数据文件和界面
+        self.bxplorer_data.write(data)
+        self.update_tw_root()
 
     def delete_button(self, iden):
         widget = QWidget()

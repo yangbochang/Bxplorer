@@ -85,6 +85,19 @@
            <height>120</height>
           </size>
          </property>
+         <property name="editTriggers">
+          <set>QAbstractItemView::NoEditTriggers</set>
+         </property>
+         <column>
+          <property name="text">
+           <string>文件夹路径</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>操作</string>
+          </property>
+         </column>
         </widget>
         <widget class="QPushButton" name="pb_open">
          <property name="maximumSize">
