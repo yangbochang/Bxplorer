@@ -45,7 +45,10 @@ class Bxplorer(QMainWindow, Ui_MainWindow):
         row_count = len(data['Root'])
         self.tw_root.setRowCount(row_count)
         for row in range(row_count):
+            # root内容
             self.tw_root.setItem(row, 0, QTableWidgetItem(str(data['Root'][row])))
+            # 删除按钮
+            self.tw_root.setCellWidget(row, 1, self.pb_delete_root(row))
 
 
     def new_root(self):
@@ -61,19 +64,19 @@ class Bxplorer(QMainWindow, Ui_MainWindow):
         self.bxplorer_data.write(data)
         self.update_tw_root()
 
-    def delete_button(self, iden):
-        widget = QWidget()
-        deletenBtn = QPushButton('Delete')
-        deletenBtn.setStyleSheet(''' text-align : center;
-                                     background-color : LightCoral;
-                                     height : 30px;
-                                     border-style : outset;
-                                     font : 13px; ''')
-        deletenBtn.clicked.connect(lambda: self.delete_button(iden))
 
-        hLayout = QHBoxLayout()
-        hLayout.addWidget(deletenBtn)
-        hLayout.setContentsMargins(0,0,0,0)
-        widget.setLayout(hLayout)
-        return widget
+    def pb_delete_root(self, index):
+        ''' 删除root按钮 '''
 
+        pb_delete_root = QPushButton('删除')
+        pb_delete_root.clicked.connect(lambda: self.delete_root(index))
+        return pb_delete_root
+
+
+    def delete_root(self, index):
+        ''' 删除root '''
+
+        data = self.bxplorer_data.read()
+        del data['Root'][index]
+        self.bxplorer_data.write(data)
+        self.update_tw_root()

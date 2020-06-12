@@ -30,7 +30,51 @@
        <property name="orientation">
         <enum>Qt::Vertical</enum>
        </property>
-       <widget class="QTableWidget" name="tw_file"/>
+       <widget class="QTableWidget" name="tw_file">
+        <attribute name="horizontalHeaderStretchLastSection">
+         <bool>true</bool>
+        </attribute>
+        <column>
+         <property name="text">
+          <string>名称</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>播放</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>Mosaic</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>字幕</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>地域</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>主演</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>操作</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>标签</string>
+         </property>
+        </column>
+       </widget>
        <widget class="QSplitter" name="splitter_3">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
