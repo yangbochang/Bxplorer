@@ -7,15 +7,15 @@
 import os 
 import json
 
-INIT_FILE_DATA = {'File': [], 'Root': []}
+import bxplorer_macro as bm
 
 class BxplorerData():
     ''' Bxplorer的数据操作 '''
 
     def __init__(self, file_path):
 
-        self.init_file_data = INIT_FILE_DATA
-        self.file_name = 'BXPLORER.DATA'        # 默认数据文件名
+        self.init_file_data = bm.FILE_DATA
+        self.file_name = bm.FILE_NAME           # 默认数据文件名
         self.file_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), self.file_name) \
             if file_path is None else file_path
 
@@ -27,7 +27,7 @@ class BxplorerData():
             except (ValueError, TypeError, KeyError):
                 self.backup_and_new()
             # 判断字典里是否有File和Root
-            if 'File' not in file_data or 'Root' not in file_data:
+            if bm.KEY_FILE not in file_data or bm.KEY_ROOT not in file_data:
                 self.backup_and_new()
         else:
             self.new()
