@@ -110,7 +110,7 @@ class Bxplorer(QMainWindow, Ui_MainWindow):
             row += 1
 
 
-    # def pb_play_file(self, )
+    # def pb_play_file(self,  )
 
 class File():
     ''' File '''
