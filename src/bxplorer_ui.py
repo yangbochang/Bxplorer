@@ -5,6 +5,8 @@
 """
 
 import os
+from zlib import crc32
+from hashlib import md5
 
 #from PyQt5.QtCore import Qt
 #from PyQt5.QtWidgets import QMainWindow, QHeaderView, QFileDialog, QItemDelegate, QPushButton, QHBoxLayout, QWidget
@@ -45,11 +47,14 @@ class Bxplorer(QMainWindow, Ui_MainWindow):
         data = self.bxplorer_data.read()
         row_count = len(data[bm.KEY_ROOT])
         self.tw_root.setRowCount(row_count)
-        for row in range(row_count):
+        # for row in range(row_count):
+        row = 0
+        for key in data[bm.KEY_ROOT]:
             # root内容
-            self.tw_root.setItem(row, 0, QTableWidgetItem(str(data[bm.KEY_ROOT][row])))
+            self.tw_root.setItem(row, 0, QTableWidgetItem(str(key)))
             # 删除按钮
             self.tw_root.setCellWidget(row, 1, self.pb_delete_root(row))
+            row += 1
 
         # 更新file数据
         file = File()
@@ -64,8 +69,8 @@ class Bxplorer(QMainWindow, Ui_MainWindow):
         data = self.bxplorer_data.read()
         root = QFileDialog.getExistingDirectory(self, '选择文件夹', os.getcwd())
         if root not in data[bm.KEY_ROOT]:
-            data[bm.KEY_ROOT].append(root)
-            data[bm.KEY_ROOT].sort()
+            data[bm.KEY_ROOT][root] = {}
+            # data[bm.KEY_ROOT].sort()
 
         # 更新数据文件和界面
         self.bxplorer_data.write(data)
@@ -133,6 +138,10 @@ class File():
             for root, dirs, files in os.walk(path):
                 for file in files:
                     #file_list.append([file, os.path.join(root, file)])
-                    file_dict[os.path.join(root, file).replace('\\', '/')] = [file]
+                    file_path = os.path.join(root, file).replace('\\', '/')
+                    file_read = open(file_path, 'rb').read()
+                    code_crc = crc32(file_read)
+                    code_md5 = md5(file_read).hexdigest()
+                    file_dict[str(code_crc) + '-' + str(code_md5)] = [file]
         data[bm.KEY_FILE] = file_dict
         self.bxplorer_data.write(data)

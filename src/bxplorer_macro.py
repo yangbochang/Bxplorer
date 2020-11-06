@@ -5,6 +5,6 @@
 """
 
 FILE_NAME = 'BXPLORER.DATA'
-FILE_DATA = {'File': [], 'Root': []}
+FILE_DATA = {'File': {}, 'Root': {}}
 KEY_ROOT = 'Root'
 KEY_FILE = 'File'
