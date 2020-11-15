@@ -1,4 +1,3 @@
-#!/usr/bin/python
 # -*- coding: utf-8 -*-
 
 """
@@ -9,10 +8,9 @@ import sys
 from PyQt5.QtWidgets import QApplication
 from bxplorer_ui import Bxplorer
 
-
 if __name__ == '__main__':
 
-    app = QApplication(sys.argv)
-    bxplorer = Bxplorer() if len(sys.argv) == 1 else Bxplorer(sys.argv[1])
-    bxplorer.show()
-    sys.exit(app.exec_())
+    APP = QApplication(sys.argv)
+    BXPLORER = Bxplorer() if len(sys.argv) == 1 else Bxplorer(sys.argv[1])
+    BXPLORER.show()
+    sys.exit(APP.exec_())

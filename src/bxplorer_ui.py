@@ -5,18 +5,12 @@
 """
 
 import os
-from zlib import crc32
-from hashlib import md5
-
-#from PyQt5.QtCore import Qt
-#from PyQt5.QtWidgets import QMainWindow, QHeaderView, QFileDialog, QItemDelegate, QPushButton, QHBoxLayout, QWidget
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import QStandardItemModel, QStandardItem
+from PyQt5.QtWidgets import QMainWindow, QHeaderView, QFileDialog, QPushButton, QTableWidgetItem
+# from PyQt5.QtGui import QStandardItemModel, QStandardItem
 
 from bxplorer_base import Ui_MainWindow
 from bxplorer_data import BxplorerData
-import bxplorer_macro as bm
-
+from file_reader import FileReader
 
 class Bxplorer(QMainWindow, Ui_MainWindow):
     ''' 重构 bxplorer_base '''
@@ -30,70 +24,42 @@ class Bxplorer(QMainWindow, Ui_MainWindow):
         self.bxplorer_data = BxplorerData(data_path)
 
         # 设置按钮响应
-        self.pb_open.clicked.connect(self.new_root)
+        self.pb_open.clicked.connect(self.__new_root)
 
         # 设置tableWidget的显示内容
-        self.update_tw_root()
+        self.__update_tw_root()
 
-    def update_tw_root(self):
-        ''' 设置tw_root '''
-
-        # 设置 tableWidget 格式
-        self.tw_root.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
-        self.tw_root.horizontalHeader().setSectionResizeMode(1, QHeaderView.Interactive)
-        self.tw_root.setColumnWidth(1, 100)
-
-        # 设置 tableWidget 内容
-        data = self.bxplorer_data.read()
-        row_count = len(data[bm.KEY_ROOT])
-        self.tw_root.setRowCount(row_count)
-        # for row in range(row_count):
-        row = 0
-        for key in data[bm.KEY_ROOT]:
-            # root内容
-            self.tw_root.setItem(row, 0, QTableWidgetItem(str(key)))
-            # 删除按钮
-            self.tw_root.setCellWidget(row, 1, self.pb_delete_root(row))
-            row += 1
-
-        # 更新file数据
-        file = File()
-        file.rewrite()
-        # 更新tw_file
-        self.update_tw_file()
-
-
-    def new_root(self):
+    def __new_root(self):
         ''' 新增root '''
 
         data = self.bxplorer_data.read()
+        # 获取新root
         root = QFileDialog.getExistingDirectory(self, '选择文件夹', os.getcwd())
-        if root not in data[bm.KEY_ROOT]:
-            data[bm.KEY_ROOT][root] = {}
-            # data[bm.KEY_ROOT].sort()
-
+        file_reader = FileReader()
+        data['Root'][root] = file_reader.code_folder(root)
         # 更新数据文件和界面
         self.bxplorer_data.write(data)
-        self.update_tw_root()
+        self.__update_tw_root()
 
-
-    def pb_delete_root(self, index):
-        ''' 删除root按钮 '''
-
-        pb_delete_root = QPushButton('删除')
-        pb_delete_root.clicked.connect(lambda: self.delete_root(index))
-        return pb_delete_root
-
-
-    def delete_root(self, index):
+    def __delete_root(self, index):
         ''' 删除root '''
 
         data = self.bxplorer_data.read()
-        del data[bm.KEY_ROOT][index]
+        for row, root in enumerate(data['Root']):
+            if row == index:
+                del data['Root'][root]
+                break
         self.bxplorer_data.write(data)
-        self.update_tw_root()
+        self.__update_tw_root()
 
-    def update_tw_file(self):
+    def __pb_delete_root(self, index):
+        ''' 删除root按钮 '''
+
+        pb_delete_root = QPushButton('删除')
+        pb_delete_root.clicked.connect(lambda: self.__delete_root(index))
+        return pb_delete_root
+
+    def __update_tw_file(self):
         ''' 设置tw_file '''
 
         # 设置 tableWidget 格式
@@ -102,46 +68,49 @@ class Bxplorer(QMainWindow, Ui_MainWindow):
 
         # 设置 tableWidget 内容
         data = self.bxplorer_data.read()
-        row_count = len(data[bm.KEY_FILE])
+
+        # 获取全部file
+        file_reader = FileReader()
+        file_list = []
+        for root in data['Root']:
+            file_list.extend(file_reader.walk_folder(root))
+
+        # 获取文件及标识码
+        data['File'].clear()
+        count = 0
+        for file in file_list:
+            code = file_reader.code_file(file)
+            data['File'][code] = {'path': file}
+            count += 1
+            print(count, '/', len(file_list))
+        self.bxplorer_data.write(data)
+
+        row_count = len(data['File'])
         self.tw_file.setRowCount(row_count)
-        # for row in range(row_count):
-        #     # root内容
-        #     self.tw_file.setItem(row, 0, QTableWidgetItem(str(data[bm.KEY_FILE][row][0])))
-        #     # 删除按钮
-        #     #self.tw_file.setCellWidget(row, 1, self.pb_delete_root(row))
         row = 0
-        for value in data[bm.KEY_FILE].values():
-            self.tw_file.setItem(row, 0, QTableWidgetItem(str(value[0])))
+        for file in data['File']:
+            self.tw_file.setItem(row, 0, QTableWidgetItem(data['File'][file]['path']))
             row += 1
 
+    def __update_tw_root(self):
+        ''' 更新root的tableWidget '''
 
-    # def pb_play_file(self,  )
+        # 设置 tableWidget 格式
+        self.tw_root.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        self.tw_root.horizontalHeader().setSectionResizeMode(1, QHeaderView.Interactive)
+        self.tw_root.setColumnWidth(1, 100)
 
-class File():
-    ''' File '''
-
-    def __init__(self, data_path=None):
-        self.bxplorer_data = BxplorerData(data_path)
-
-    def read(self):
-        ''' 读File '''
-
+        # 设置 tableWidget 内容
         data = self.bxplorer_data.read()
-        return data[bm.KEY_FILE]
+        row_count = len(data['Root'])
+        self.tw_root.setRowCount(row_count)
+        row = 0
+        for root in data['Root']:
+            # root内容
+            self.tw_root.setItem(row, 0, QTableWidgetItem(str(root)))
+            # 删除按钮
+            self.tw_root.setCellWidget(row, 1, self.__pb_delete_root(row))
+            row += 1
 
-    def rewrite(self):
-        ''' 重写File '''
-
-        data = self.bxplorer_data.read()
-        file_dict = {}
-        for path in data[bm.KEY_ROOT]:
-            for root, dirs, files in os.walk(path):
-                for file in files:
-                    #file_list.append([file, os.path.join(root, file)])
-                    file_path = os.path.join(root, file).replace('\\', '/')
-                    file_read = open(file_path, 'rb').read()
-                    code_crc = crc32(file_read)
-                    code_md5 = md5(file_read).hexdigest()
-                    file_dict[str(code_crc) + '-' + str(code_md5)] = [file]
-        data[bm.KEY_FILE] = file_dict
-        self.bxplorer_data.write(data)
+        # 更新tw_file
+        self.__update_tw_file()

@@ -4,59 +4,61 @@
     Bxplorer 的数据
 """
 
-import os 
+import os
 import json
 
-import bxplorer_macro as bm
+INIT_FILE_NAME = 'BXPLORE.DATA'
+INIT_FILE_DATA = {'File': {}, 'Root': {}}
 
 class BxplorerData():
     ''' Bxplorer的数据操作 '''
 
-    def __init__(self, file_path):
+    def __init__(self, data_path):
 
-        self.init_file_data = bm.FILE_DATA
-        self.file_name = bm.FILE_NAME           # 默认数据文件名
-        self.file_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), self.file_name) \
-            if file_path is None else file_path
+        self.data_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), INIT_FILE_NAME) \
+            if data_path is None else data_path
 
-        if os.path.isfile(self.file_path):
-            # json校验
-            try:
-                read_file = open(self.file_path, 'r', encoding='utf-8').read()
-                file_data = json.loads(read_file)
-            except (ValueError, TypeError, KeyError):
-                self.backup_and_new()
-            # 判断字典里是否有File和Root
-            if bm.KEY_FILE not in file_data or bm.KEY_ROOT not in file_data:
-                self.backup_and_new()
+        if os.path.isfile(self.data_path):
+            if os.path.getsize(self.data_path) == 0:
+                self.__new()
+            else:
+                try:
+                    file_read = open(self.data_path, 'r', encoding='utf-8').read()
+                    file_data = json.loads(file_read)
+                    if 'File' not in file_data or 'Root' not in file_data:
+                        self.__backup_and_new()
+                except (TypeError, KeyError, ValueError):
+                    self.__backup_and_new()
         else:
-            self.new()
+            self.__new()
 
-    def new(self):
+    def __new(self):
         ''' 创建新数据文件 '''
 
-        file = open(self.file_path, 'w', encoding='utf-8')
-        file.write(json.dumps(self.init_file_data, indent=2, sort_keys=True, ensure_ascii=False))
+        file = open(self.data_path, 'w', encoding='utf-8')
+        file.write(json.dumps(INIT_FILE_DATA, indent=2, sort_keys=True, ensure_ascii=False))
         file.close()
 
-    def backup_and_new(self):
+    def __backup_and_new(self):
         ''' 备份后创建新数据文件 '''
 
-        file_backup = self.file_path + '.bak'
+        file_backup = self.data_path + '.bak'
         if os.path.isfile(file_backup):
             os.remove(file_backup)
-        os.rename(self.file_path, file_backup)
-        self.new()
+        os.rename(self.data_path, file_backup)
+        self.__new()
 
     def read(self):
         ''' 读数据 '''
 
-        read_file = open(self.file_path, 'r', encoding='utf-8').read()
-        return json.loads(read_file)
+        open_file = open(self.data_path, 'r', encoding='utf-8')
+        data = json.load(open_file)
+        open_file.close()
+        return data
 
     def write(self, data):
         ''' 写数据 '''
 
-        open_file = open(self.file_path, 'w', encoding='utf-8')
+        open_file = open(self.data_path, 'w', encoding='utf-8')
         open_file.write(json.dumps(data, indent=2, sort_keys=True, ensure_ascii=False))
         open_file.close()
