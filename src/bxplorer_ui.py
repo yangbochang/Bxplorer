@@ -5,8 +5,9 @@
 """
 
 import os
-from PyQt5.QtWidgets import QMainWindow, QHeaderView, QFileDialog, QPushButton, QTableWidgetItem
-# from PyQt5.QtGui import QStandardItemModel, QStandardItem
+import subprocess
+from PyQt5.QtWidgets import QMainWindow, QHeaderView, QFileDialog, QPushButton
+from PyQt5.QtWidgets import QTableWidgetItem, QAbstractItemView, QItemDelegate
 
 from bxplorer_base import Ui_MainWindow
 from bxplorer_data import BxplorerData
@@ -28,6 +29,19 @@ class Bxplorer(QMainWindow, Ui_MainWindow):
 
         # 设置tableWidget的显示内容
         self.__update_tw_root()
+
+    def __play(self, file):
+        ''' 播放 '''
+
+        cmd = '"%s" "%s"' % (self.bxplorer_data.player, file)
+        subprocess.Popen(cmd)
+
+    def __pd_play(self, file):
+        ''' 播放按钮 '''
+
+        pd_play = QPushButton('Play')
+        pd_play.clicked.connect(lambda: self.__play(file))
+        return pd_play
 
     def __new_root(self):
         ''' 新增root '''
@@ -62,11 +76,27 @@ class Bxplorer(QMainWindow, Ui_MainWindow):
     def __update_tw_file(self):
         ''' 设置tw_file '''
 
-        # 设置 tableWidget 格式
-        self.tw_file.horizontalHeader().setSectionResizeMode(0, QHeaderView.Stretch)
-        self.tw_file.horizontalHeader().resizeSections(QHeaderView.ResizeToContents)
+        column_name = self.bxplorer_data.property['name']
+        column_size = self.bxplorer_data.property['length']
 
-        # 设置 tableWidget 内容
+        # 设置行列名
+        self.tw_file.setColumnCount(len(column_name))
+        self.tw_file.setHorizontalHeaderLabels(column_name)
+        # 设置列宽
+        self.tw_file.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
+        for index, length in enumerate(column_size):
+            if length == 0:
+                continue
+            self.tw_file.horizontalHeader().setSectionResizeMode(index, QHeaderView.Interactive)
+            self.tw_file.setColumnWidth(index, length)
+
+        # 设置编辑状态
+        self.tw_file.setEditTriggers(QAbstractItemView.DoubleClicked)
+        self.tw_file.setItemDelegateForColumn(column_name.index('名称'), EmptyDelegate(self))
+        self.tw_file.setItemDelegateForColumn(column_name.index('格式'), EmptyDelegate(self))
+        self.tw_file.setItemDelegateForColumn(column_name.index('路径'), EmptyDelegate(self))
+
+        # 获取数据
         data = self.bxplorer_data.read()
 
         # 获取全部file
@@ -77,20 +107,25 @@ class Bxplorer(QMainWindow, Ui_MainWindow):
 
         # 获取文件及标识码
         data['File'].clear()
-        count = 0
-        for file in file_list:
+        for count, file in enumerate(file_list):
             code = file_reader.code_file(file)
             data['File'][code] = {'path': file}
-            count += 1
-            print(count, '/', len(file_list))
+            print(count + 1, '/', len(file_list))
         self.bxplorer_data.write(data)
 
+        # 设置表格行数
         row_count = len(data['File'])
         self.tw_file.setRowCount(row_count)
-        row = 0
-        for file in data['File']:
-            self.tw_file.setItem(row, 0, QTableWidgetItem(data['File'][file]['path']))
-            row += 1
+
+        # 设置表格内容
+        for row, file in enumerate(data['File']):
+            file_path = data['File'][file]['path']
+            file_name = os.path.basename(file_path)
+            file_suffix = os.path.splitext(file_path)[-1]
+            self.tw_file.setItem(row, column_name.index('名称'), QTableWidgetItem(file_name))
+            self.tw_file.setItem(row, column_name.index('格式'), QTableWidgetItem(file_suffix))
+            self.tw_file.setItem(row, column_name.index('路径'), QTableWidgetItem(file_path))
+            self.tw_file.setCellWidget(row, column_name.index('播放'), self.__pd_play(file_path))
 
     def __update_tw_root(self):
         ''' 更新root的tableWidget '''
@@ -98,7 +133,7 @@ class Bxplorer(QMainWindow, Ui_MainWindow):
         # 设置 tableWidget 格式
         self.tw_root.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self.tw_root.horizontalHeader().setSectionResizeMode(1, QHeaderView.Interactive)
-        self.tw_root.setColumnWidth(1, 100)
+        self.tw_file.setColumnWidth(1, 100)
 
         # 设置 tableWidget 内容
         data = self.bxplorer_data.read()
@@ -114,3 +149,10 @@ class Bxplorer(QMainWindow, Ui_MainWindow):
 
         # 更新tw_file
         self.__update_tw_file()
+
+class EmptyDelegate(QItemDelegate):
+    def __init__(self, parent):
+        super(EmptyDelegate, self).__init__(parent)
+
+    def createEditor(self, QWidget, QStyleOptionViewItem, QModelIndex):
+        return None

@@ -8,7 +8,15 @@ import os
 import json
 
 INIT_FILE_NAME = 'BXPLORE.DATA'
-INIT_FILE_DATA = {'File': {}, 'Root': {}}
+INIT_FILE_DATA = {
+    'File': {},
+    'Root': {},
+    'Property': {
+        'name': ['名称', '演员', '地域', '无马', '字幕', '分类', '标签', '播放', '操作', '格式', '路径'],
+        'length': [200, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    },
+    'Player': r'D:\Program Files\PotPlayer64\PotPlayerMini64.exe'
+}
 
 class BxplorerData():
     ''' Bxplorer的数据操作 '''
@@ -17,6 +25,9 @@ class BxplorerData():
 
         self.data_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), INIT_FILE_NAME) \
             if data_path is None else data_path
+
+        self.property = INIT_FILE_DATA['Property']
+        self.player = INIT_FILE_DATA['Player']
 
         if os.path.isfile(self.data_path):
             if os.path.getsize(self.data_path) == 0:
